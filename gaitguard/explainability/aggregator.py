@@ -165,8 +165,16 @@ class AttributionAggregator:
         Maps model attributions to Level 2 human-interpretable derived gait concepts.
         Labels concepts strictly as 'derived_gait_evidence' (NOT direct SHAP features).
         """
+        from gaitguard.temporal.sequence_builder import TemporalSequenceBuilder
         seq = np.asarray(sequence_tensor, dtype=np.float32)
-        if seq.ndim == 3:
+        
+        if seq.ndim == 3 and seq.shape[1] == 17 and seq.shape[2] == 2:
+            builder = TemporalSequenceBuilder()
+            seq = builder.build_dataset(seq[np.newaxis, :], np.ones((1, 128), dtype=np.int32), mode="combined")[0]
+        elif seq.ndim == 4 and seq.shape[2] == 17 and seq.shape[3] == 2:
+            builder = TemporalSequenceBuilder()
+            seq = builder.build_dataset(seq, np.ones((1, 128), dtype=np.int32), mode="combined")[0]
+        elif seq.ndim == 3 and seq.shape[2] == 76:
             seq = seq[0]
             
         attr = AttributionAggregator.compute_feature_attributions(shap_matrix)

@@ -65,7 +65,18 @@ class ExplanationStabilityEvaluator:
         """
         model.eval()
         seq = np.asarray(sequence_tensor, dtype=np.float32).copy()
-        if seq.ndim == 2:
+        
+        if seq.ndim == 3 and seq.shape[1] == 17 and seq.shape[2] == 2:
+            from gaitguard.temporal.sequence_builder import TemporalSequenceBuilder
+            from gaitguard.temporal.preprocessing import FoldTemporalScaler
+            seq = TemporalSequenceBuilder().build_dataset(seq[np.newaxis, :], np.ones((1, 128), dtype=np.int32), mode="combined")
+            seq = FoldTemporalScaler().fit_transform(seq, np.ones((1, 128), dtype=np.int32))
+        elif seq.ndim == 4 and seq.shape[2] == 17 and seq.shape[3] == 2:
+            from gaitguard.temporal.sequence_builder import TemporalSequenceBuilder
+            from gaitguard.temporal.preprocessing import FoldTemporalScaler
+            seq = TemporalSequenceBuilder().build_dataset(seq, np.ones((1, 128), dtype=np.int32), mode="combined")
+            seq = FoldTemporalScaler().fit_transform(seq, np.ones((1, 128), dtype=np.int32))
+        elif seq.ndim == 2 and seq.shape[0] == 128 and seq.shape[1] == 76:
             seq = seq[np.newaxis, :]
             
         m = np.asarray(mask_tensor, dtype=np.float32) if mask_tensor is not None else np.ones((seq.shape[0], seq.shape[1]), dtype=np.float32)

@@ -72,13 +72,28 @@ class GaitGuardExplainer:
 
     def explain_sequence(self, sequence_tensor, mask_tensor=None, seed=None):
         """
-        Generates (128, 76) SHAP attribution matrix for a single input sequence.
+        Generates (128, 76) SHAP attribution matrix for keypoints (128, 17, 2) or sequence (128, 76).
         """
         self.model.eval()
         seq = np.asarray(sequence_tensor, dtype=np.float32)
-        if seq.ndim == 2:
+        
+        # Convert keypoints (128, 17, 2) or (1, 128, 17, 2) to 76-feature tensor if needed
+        if seq.ndim == 3 and seq.shape[1] == 17 and seq.shape[2] == 2:
+            builder = TemporalSequenceBuilder()
+            seq = builder.build_dataset(seq[np.newaxis, :], np.ones((1, 128), dtype=np.int32), mode="combined")
+            scaler = FoldTemporalScaler()
+            seq = scaler.fit_transform(seq, np.ones((1, 128), dtype=np.int32))
+        elif seq.ndim == 4 and seq.shape[2] == 17 and seq.shape[3] == 2:
+            builder = TemporalSequenceBuilder()
+            seq = builder.build_dataset(seq, np.ones((1, 128), dtype=np.int32), mode="combined")
+            scaler = FoldTemporalScaler()
+            seq = scaler.fit_transform(seq, np.ones((1, 128), dtype=np.int32))
+        elif seq.ndim == 2 and seq.shape[0] == 128 and seq.shape[1] == 76:
             seq = seq[np.newaxis, :] # Shape (1, 128, 76)
-            
+
+        if seq.ndim != 3 or seq.shape[1] != 128 or seq.shape[2] != 76:
+            raise ValueError(f"Input sequence tensor must have shape (1, 128, 76), got {seq.shape}")
+
         seq_tensor = torch.tensor(seq, dtype=torch.float32)
         
         if seed is not None:
@@ -86,7 +101,6 @@ class GaitGuardExplainer:
 
         shap_vals = self.explainer.shap_values(seq_tensor)
         
-        # shap_vals shape can be (1, 128, 76, 1) or (1, 128, 76)
         sv = np.array(shap_vals)
         if sv.ndim == 4:
             sv = sv[0, :, :, 0]
@@ -128,8 +142,28 @@ class GaitGuardExplainer:
                 "disclaimer": "AI-assisted screening tool. Model explanations describe AI pattern behavior, not veterinary diagnosis."
             }
 
-        # 2. Generate SHAP attributions for valid predictions (NORMAL / LAMENESS_RISK)
-        shap_mat = self.explain_sequence(sequence_tensor, mask_tensor)
+        # 2. Generate SHAP attributions safely for valid predictions (NORMAL / LAMENESS_RISK)
+        try:
+            shap_mat = self.explain_sequence(sequence_tensor, mask_tensor)
+        except Exception as e:
+            return {
+                "explanation_available": False,
+                "prediction": {
+                    "raw_probability": triage_result.get("risk_probability_raw", 0.5),
+                    "calibrated_probability": triage_result.get("risk_probability_calibrated", 0.5),
+                    "decision": decision,
+                    "confidence": triage_result.get("confidence", "HIGH")
+                },
+                "result_summary": "Screening result generated successfully.",
+                "explanation_guidance": f"Explanation calculation unavailable: {str(e)}",
+                "top_contributors": [],
+                "modality_attribution": None,
+                "body_region_attribution": None,
+                "temporal_attribution": None,
+                "derived_gait_evidence": [],
+                "explanation_time_ms": round((time.time() - start_time) * 1000.0, 2),
+                "disclaimer": "AI-assisted screening tool. Model explanations describe AI pattern behavior, not veterinary diagnosis."
+            }
 
         # 3. Level 1 Model Input Attribution
         top_contrib = AttributionAggregator.get_top_contributors(shap_mat, top_k=5)
