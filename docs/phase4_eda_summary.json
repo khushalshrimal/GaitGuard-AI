@@ -1,0 +1,72 @@
+{
+  "total_samples": 272,
+  "unique_cows": 98,
+  "binary_counts": {
+    "0_normal": 143,
+    "1_lame_risk": 129
+  },
+  "sequence_lengths": {
+    "min": 90,
+    "max": 207,
+    "mean": 134.36764705882354,
+    "median": 130.0,
+    "std": 23.303088921582848
+  },
+  "statistical_tests": [
+    {
+      "variable": "spine_arch_elevation",
+      "normal_mean": -0.0006569775967847335,
+      "normal_std": 0.0035272538342664707,
+      "lame_mean": -0.0020304684891129026,
+      "lame_std": 0.003825797489979406,
+      "mann_whitney_p": 0.0008647922238075291,
+      "t_test_p": 0.002473775195363518,
+      "cohen_d": -0.37267986219930577,
+      "significant_p005": true
+    },
+    {
+      "variable": "head_nod_var",
+      "normal_mean": 8.21737570782665e-05,
+      "normal_std": 7.860812702577762e-05,
+      "lame_mean": 0.00011700887850121606,
+      "lame_std": 0.0001577256642651949,
+      "mann_whitney_p": 0.020252505586198052,
+      "t_test_p": 0.025082972561985252,
+      "cohen_d": 0.2829360096110299,
+      "significant_p005": true
+    },
+    {
+      "variable": "total_gait_asym",
+      "normal_mean": 0.048521857659293226,
+      "normal_std": 0.02222685649739689,
+      "lame_mean": 0.0506768892831974,
+      "lame_std": 0.026543458255528,
+      "mann_whitney_p": 0.6532876359263297,
+      "t_test_p": 0.47280723752182685,
+      "cohen_d": 0.08810551102055528,
+      "significant_p005": false
+    },
+    {
+      "variable": "avg_hoof_disp",
+      "normal_mean": 0.8355372790898477,
+      "normal_std": 0.10481370618527351,
+      "lame_mean": 0.7974782624216967,
+      "lame_std": 0.08397034557597985,
+      "mann_whitney_p": 0.0024566984213515103,
+      "t_test_p": 0.0010728446896791674,
+      "cohen_d": -0.3970671550407623,
+      "significant_p005": true
+    },
+    {
+      "variable": "raw_seq_len",
+      "normal_mean": 127.77622377622377,
+      "normal_std": 19.946929441188246,
+      "lame_mean": 141.67441860465115,
+      "lame_std": 24.54363707330294,
+      "mann_whitney_p": 1.8925044739998368e-06,
+      "t_test_p": 7.73139799669084e-07,
+      "cohen_d": 0.6224570864150067,
+      "significant_p005": true
+    }
+  ]
+}
