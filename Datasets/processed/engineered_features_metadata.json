@@ -1,0 +1,85 @@
+{
+  "phase": 5,
+  "pipeline_status": "FEATURES_ENGINEERED",
+  "total_samples": 272,
+  "feature_names": [
+    "raw_sequence_length",
+    "torso_length",
+    "back_arch_curvature",
+    "head_nodding_amplitude",
+    "torso_normalized_stride_length",
+    "stance_timing_asymmetry",
+    "normalized_walking_speed",
+    "knee_flexion_range"
+  ],
+  "feature_matrix_shape": [
+    272,
+    8
+  ],
+  "statistical_evaluation": [
+    {
+      "feature": "raw_sequence_length",
+      "normal_mean": 127.77622377622377,
+      "lame_mean": 141.67441860465115,
+      "p_value": 1.8925044739998368e-06,
+      "cohen_d": 0.6214622405679113,
+      "stat_sig": true
+    },
+    {
+      "feature": "torso_length",
+      "normal_mean": 0.05464078040493952,
+      "lame_mean": 0.05806523460403893,
+      "p_value": 1.9437526777471426e-05,
+      "cohen_d": 0.6320347860481847,
+      "stat_sig": true
+    },
+    {
+      "feature": "back_arch_curvature",
+      "normal_mean": -0.012278206640743762,
+      "lame_mean": -0.036260035560401374,
+      "p_value": 0.0015702477253368493,
+      "cohen_d": -0.36967941707846386,
+      "stat_sig": true
+    },
+    {
+      "feature": "head_nodding_amplitude",
+      "normal_mean": 0.6920123535853165,
+      "lame_mean": 0.7074564146672109,
+      "p_value": 0.42036923592307396,
+      "cohen_d": 0.053754269119707605,
+      "stat_sig": false
+    },
+    {
+      "feature": "torso_normalized_stride_length",
+      "normal_mean": 15.440794617979677,
+      "lame_mean": 13.891177391821099,
+      "p_value": 1.3755816009161735e-06,
+      "cohen_d": -0.6455172102159763,
+      "stat_sig": true
+    },
+    {
+      "feature": "stance_timing_asymmetry",
+      "normal_mean": 0.0,
+      "lame_mean": 0.0,
+      "p_value": 1.0,
+      "cohen_d": 0.0,
+      "stat_sig": false
+    },
+    {
+      "feature": "normalized_walking_speed",
+      "normal_mean": 0.10551034059974697,
+      "lame_mean": 0.08932574182864307,
+      "p_value": 2.1029488086093607e-10,
+      "cohen_d": -0.7835448490001456,
+      "stat_sig": true
+    },
+    {
+      "feature": "knee_flexion_range",
+      "normal_mean": 40.046303115524616,
+      "lame_mean": 37.514041397922725,
+      "p_value": 0.01317187548218863,
+      "cohen_d": -0.23954250182117087,
+      "stat_sig": true
+    }
+  ]
+}
