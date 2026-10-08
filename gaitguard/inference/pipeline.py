@@ -5,6 +5,7 @@ Integrates video reading, frame sampling, pose estimation, keypoint cleaning, no
 """
 
 import time
+import os
 import numpy as np
 import pandas as pd
 
@@ -13,6 +14,7 @@ from gaitguard.video.sampler import FrameSampler
 from gaitguard.pose.estimator import QuadrupedPoseEstimator
 from gaitguard.pose.cleaner import KeypointCleaner
 from gaitguard.pose.normalizer import KeypointNormalizer
+from gaitguard.quality.analyzer import VideoQualityAnalyzer
 from gaitguard.temporal.sequence_builder import TemporalSequenceBuilder
 from gaitguard.temporal.preprocessing import FoldTemporalScaler
 from gaitguard.temporal.model import BiLSTMGaitClassifier, set_seed
@@ -36,6 +38,7 @@ class GaitGuardInferencePipeline:
         self.estimator = QuadrupedPoseEstimator(keypoint_count=17)
         self.cleaner = KeypointCleaner(window_length=5, polyorder=2)
         self.normalizer = KeypointNormalizer()
+        self.quality_analyzer = VideoQualityAnalyzer()
         self.builder = TemporalSequenceBuilder()
         self.validator = ModelInputValidator(target_timesteps=128, target_features=76)
         
@@ -135,9 +138,25 @@ class GaitGuardInferencePipeline:
         # 4. Pose estimation
         kp_raw, conf_raw = self.estimator.estimate_pose_from_frames(sampled_frames)
         
-        # 5. Execute sequence analysis
+        # 5. Phase 10 Video Quality Gate & Pose Quality Evaluation
+        quality_res = self.quality_analyzer.analyze_quality(meta, frames=sampled_frames, keypoints=kp_raw, confidences=conf_raw)
+        
+        # If quality gate fails completely with RETRY status
+        if quality_res.status == "RETRY":
+            return {
+                "video_quality": quality_res.to_dict(),
+                "inference": None,
+                "status": "RETRY",
+                "decision": "INCONCLUSIVE",
+                "inconclusive": True,
+                "capture_coach": quality_res.user_guidance,
+                "disclaimer": "AI-assisted screening tool. Video quality insufficient for ML prediction."
+            }
+            
+        # 6. Execute sequence analysis if quality passes (READY / INCONCLUSIVE)
         sample_id = os.path.basename(video_path)
         res = self.analyze_keypoint_sequence(kp_raw, sample_id=sample_id)
+        res["video_quality"] = quality_res.to_dict()
         res["video_metadata"] = {
             "fps": meta.fps,
             "width": meta.width,

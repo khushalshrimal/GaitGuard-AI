@@ -1,0 +1,9 @@
+scenario_id,scenario_name,status,expected_status,quality_score,keypoint_coverage,motion_quality,blur_indicator,framing_quality,issue_count,primary_issue,latency_ms
+1,High Quality Ideal Video,READY,READY,75.0,1.0,2.5,140.0,0.0,0,NONE,2.88
+2,Short Video (<30 frames),RETRY,RETRY,75.0,1.0,1.5,100.0,0.0,1,VIDEO_TOO_SHORT,0.37
+3,Low Resolution (<480p),RETRY,RETRY,75.0,1.0,2.0,90.0,0.0,1,LOW_RESOLUTION,0.27
+4,Stationary / Low Motion,RETRY,RETRY,51.0,1.0,0.2,120.0,0.0,1,INSUFFICIENT_WALKING,0.26
+5,Excessive Motion Blur,RETRY,RETRY,75.0,1.0,2.0,18.5,0.0,1,EXCESSIVE_BLUR,0.26
+6,Low Keypoint Coverage,RETRY,RETRY,55.0,0.5,2.0,100.0,0.0,1,LOW_KEYPOINT_COVERAGE,0.23
+7,Corrupt / Unreadable Video,RETRY,RETRY,30.0,0.0,0.0,100.0,0.5,1,VIDEO_UNREADABLE,0.02
+8,Poor Framing (Extreme Close-up),INCONCLUSIVE,RETRY,75.0,1.0,2.0,110.0,0.0,1,POOR_FRAMING,0.23
