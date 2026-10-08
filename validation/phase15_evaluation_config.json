@@ -1,0 +1,45 @@
+{
+  "system_name": "GaitGuard AI",
+  "phase": 15,
+  "status": "PRE_REGISTRATION_LOCKED",
+  "timestamp": "2026-10-08T20:02:00+05:30",
+  "frozen_system": {
+    "model_version": "bilstm_v1_calibrated",
+    "feature_schema_version": "76_compact_v1",
+    "screening_threshold": 0.34,
+    "inconclusive_interval": [0.24, 0.44],
+    "calibration_method": "platt_scaling_sigmoid"
+  },
+  "endpoints": {
+    "primary_endpoint": {
+      "metric": "sensitivity_recall",
+      "target_class": "LAMENESS_RISK",
+      "rationale": "Prioritizes high sensitivity in screening to minimize false negatives for cattle locomotion abnormalities."
+    },
+    "secondary_endpoints": [
+      "specificity",
+      "precision_ppv",
+      "npv",
+      "f1_score",
+      "balanced_accuracy",
+      "roc_auc",
+      "pr_auc",
+      "brier_score",
+      "calibrated_ece"
+    ]
+  },
+  "subgroup_rules": {
+    "minimum_subgroup_n": 10,
+    "insufficient_n_label": "INSUFFICIENT_N"
+  },
+  "statistical_methods": {
+    "proportion_confidence_interval": "exact_binomial",
+    "clustered_confidence_interval": "animal_level_bootstrap",
+    "inter_rater_agreement_metric": "cohens_kappa"
+  },
+  "inconclusive_handling": {
+    "report_inconclusive_rate": true,
+    "allow_silent_conversion": false,
+    "categories": ["NORMAL", "LAMENESS_RISK", "INCONCLUSIVE"]
+  }
+}

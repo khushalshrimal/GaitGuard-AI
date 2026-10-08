@@ -1,0 +1,4 @@
+video_id,exclusion_status,exclusion_reason,discovered_timing
+EXT_VID_901,EXCLUDED,Severe camera shake exceeding 45 degrees,PRE_INFERENCE
+EXT_VID_902,EXCLUDED,Cattle body obscured by farm gate (>60% occlusion),PRE_INFERENCE
+EXT_VID_903,EXCLUDED,Walking sequence shorter than 2.0 seconds (<30 frames),PRE_INFERENCE

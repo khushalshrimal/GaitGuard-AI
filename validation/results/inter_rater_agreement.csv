@@ -1,0 +1,2 @@
+evaluator_pair,n_samples,raw_agreement_pct,cohen_kappa,kappa_std_err,kappa_95ci_lower,kappa_95ci_upper,agreement_level
+ANNOTATOR_001_vs_ANNOTATOR_002,0,0.0,0.0,0.0,0.0,0.0,BLOCKED_DATA_COLLECTION_REQUIRED

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GaitGuardAI_AnnotationSchema",
+  "description": "Blinded double-annotation schema for external cattle locomotion reference assessment",
+  "type": "object",
+  "properties": {
+    "video_id": { "type": "string" },
+    "animal_id": { "type": "string" },
+    "session_id": { "type": "string" },
+    "site_id": { "type": "string" },
+    "annotator_id": { "type": "string", "pattern": "^ANNOTATOR_[0-9]{3}$" },
+    "annotator_role": { "type": "string", "enum": ["VETERINARIAN", "LOCOMOTION_SCORER", "ANIMAL_HEALTH_EXPERT"] },
+    "annotation_timestamp": { "type": "string", "format": "date-time" },
+    "reference_protocol": { "type": "string", "example": "Sprecher_5Point_Locomotion_Scale" },
+    "raw_score": { "type": "number", "minimum": 1, "maximum": 5 },
+    "binary_label": { "type": "string", "enum": ["NORMAL", "LAMENESS_RISK", "UNKNOWN"] },
+    "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+    "visible_body_regions": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["HEAD", "SPINE_BACK", "LEFT_FORE_HOOF", "RIGHT_FORE_HOOF", "LEFT_HIND_HOOF", "RIGHT_HIND_HOOF", "FLANK"] }
+    },
+    "walking_quality": { "type": "string", "enum": ["EXCELLENT", "ACCEPTABLE", "SUBOPTIMAL", "UNUSABLE"] },
+    "blinded_flag": { "type": "boolean", "default": true },
+    "annotation_valid": { "type": "boolean", "default": true },
+    "disagreement_flag": { "type": "boolean", "default": false },
+    "notes": { "type": "string" }
+  },
+  "required": [
+    "video_id",
+    "animal_id",
+    "annotator_id",
+    "annotator_role",
+    "reference_protocol",
+    "raw_score",
+    "binary_label",
+    "blinded_flag",
+    "annotation_valid"
+  ]
+}
