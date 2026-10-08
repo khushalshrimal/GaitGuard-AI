@@ -1,0 +1,4 @@
+Method,ROC-AUC,Brier Score,Log Loss,ECE Error,Calibration Quality
+Raw BiLSTM Output,0.9016,0.1263,0.3977,0.0332,Uncalibrated Neural Network Output
+Sigmoid (Platt Scaling),0.8999,0.1271,0.4018,0.0291,Parametric Smooth Sigmoid Curve
+Isotonic Regression,0.8807,0.1369,0.6059,0.0545,Non-parametric Piecewise Monotonic
