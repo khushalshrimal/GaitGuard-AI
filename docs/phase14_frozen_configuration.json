@@ -1,0 +1,47 @@
+{
+  "system_name": "GaitGuard AI",
+  "phase": 14,
+  "status": "FROZEN_EVALUATION",
+  "timestamp": "2026-10-08T19:52:00+05:30",
+  "frozen_parameters": {
+    "random_seed": 42,
+    "input_sequence_length": 128,
+    "feature_dim": 76,
+    "feature_schema": "76_compact_v1",
+    "bilstm_architecture": {
+      "layers": 1,
+      "hidden_size": 32,
+      "dropout": 0.3,
+      "dense_head": 16,
+      "activation": "sigmoid"
+    },
+    "calibration": {
+      "method": "platt_scaling_sigmoid",
+      "calibrated_ece": 0.0291
+    },
+    "screening_decision": {
+      "threshold_tau": 0.34,
+      "inconclusive_interval": [0.24, 0.44],
+      "decision_rules": {
+        "p_calibrated < 0.24": "NORMAL",
+        "0.24 <= p_calibrated <= 0.44": "INCONCLUSIVE",
+        "p_calibrated > 0.44": "LAMENESS_RISK"
+      }
+    },
+    "quality_gate": {
+      "min_keypoint_coverage": 0.60,
+      "max_blur_indicator": 0.70,
+      "min_motion_quality": 0.40,
+      "min_framing_quality": 0.50,
+      "min_sequence_length": 30
+    }
+  },
+  "internal_cv_benchmark": {
+    "n_samples": 272,
+    "unique_cows": 98,
+    "oof_accuracy": 0.8197,
+    "oof_recall": 0.7896,
+    "oof_f1": 0.7973,
+    "oof_roc_auc": 0.9016
+  }
+}

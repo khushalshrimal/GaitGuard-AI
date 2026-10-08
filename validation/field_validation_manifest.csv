@@ -1,0 +1,9 @@
+video_id,animal_id,session_id,site_id,source,video_path,label,label_source,label_confidence,camera_type,resolution,fps,duration,viewpoint,lighting_condition,background_condition,occlusion_level,camera_motion,walking_speed_category
+VID_FIELD_001,COW_FIELD_101,SESS_01,FARM_ALPHA,field_walkway,validation/samples/field_cow_101.mp4,UNKNOWN,UNLABELLED,0.0,mobile_phone,1920x1080,30,4.5,side,bright_daylight,simple,low,static,normal
+VID_FIELD_002,COW_FIELD_102,SESS_01,FARM_ALPHA,field_walkway,validation/samples/field_cow_102.mp4,UNKNOWN,UNLABELLED,0.0,mobile_phone,1920x1080,30,5.2,side,cloudy,complex,medium,moving,slow
+VID_FIELD_003,COW_FIELD_103,SESS_02,FARM_BETA,barn_corridor,validation/samples/field_cow_103.mp4,UNKNOWN,UNLABELLED,0.0,ip_camera,1280x720,25,3.8,side_oblique,indoor,complex,low,static,fast
+VID_FIELD_004,COW_FIELD_104,SESS_02,FARM_BETA,barn_corridor,validation/samples/field_cow_104.mp4,UNKNOWN,UNLABELLED,0.0,ip_camera,1280x720,25,4.1,side,low_light,simple,high,static,normal
+VID_FIELD_005,COW_FIELD_105,SESS_03,FARM_GAMMA,pasture_gate,validation/samples/field_cow_105.mp4,UNKNOWN,UNLABELLED,0.0,mobile_phone,1920x1080,30,6.0,side,bright_daylight,complex,low,moving,normal
+VID_FIELD_006,COW_FIELD_106,SESS_03,FARM_GAMMA,pasture_gate,validation/samples/field_cow_106.mp4,UNKNOWN,UNLABELLED,0.0,mobile_phone,1920x1080,30,3.2,side_oblique,cloudy,simple,medium,static,slow
+VID_FIELD_007,COW_FIELD_107,SESS_04,FARM_DELTA,milking_parlor,validation/samples/field_cow_107.mp4,UNKNOWN,UNLABELLED,0.0,action_cam,1920x1080,60,5.5,side,indoor,complex,low,static,normal
+VID_FIELD_008,COW_FIELD_108,SESS_04,FARM_DELTA,milking_parlor,validation/samples/field_cow_108.mp4,UNKNOWN,UNLABELLED,0.0,action_cam,1920x1080,60,4.8,side,bright_daylight,simple,low,static,fast

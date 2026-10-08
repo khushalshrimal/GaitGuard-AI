@@ -1,0 +1,6 @@
+perturbation_type,top5_jaccard_similarity,sign_consistency_rate,sample_count
+mild_blur_jitter,1.0,1.0,20
+mild_coordinate_scaling,1.0,1.0,20
+mild_camera_shake,1.0,1.0,20
+mild_frame_dropout,1.0,1.0,20
+mild_resolution_reduction,1.0,1.0,20

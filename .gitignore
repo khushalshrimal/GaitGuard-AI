@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary and upload files
+tmp_uploads/
+*.tmp
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
