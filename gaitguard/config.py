@@ -1,7 +1,10 @@
 """
-GaitGuard AI - Central Configuration & Threshold Registry (Phase 3)
-Contains validated system constants, preprocessing thresholds, and pipeline settings.
+GaitGuard AI - Central Configuration & Threshold Registry (Phase 3 & Phase 16)
+Contains validated system constants, preprocessing thresholds, pipeline settings,
+and production environment configuration.
 """
+
+import os
 
 # Video & Coordinate Parameters
 FRAME_WIDTH = 1920.0
@@ -21,9 +24,30 @@ SAVGOL_POLYORDER = 2          # Quadratic polynomial fitting for trajectory smoo
 N_SPLITS = 5
 RANDOM_SEED = 42
 
-# Threshold Rationale & Documentation:
-# - FRAME_WIDTH/HEIGHT (1920x1080): Matches raw video aspect ratio from Russello et al.
-# - TARGET_SEQUENCE_LENGTH (128): Chosen near dataset median (130 frames) to minimize padding waste.
-# - SAVGOL_WINDOW_LENGTH (5): Removes pose detector jitter over 5 frames (~0.16s) without flattening motion peaks.
-# - SAVGOL_POLYORDER (2): Preserves acceleration and curvature in joint trajectories.
-# - RANDOM_SEED (42): Fixed seed ensuring 100% reproducible splits.
+# Phase 16 Production & Security Environment Configuration
+ENVIRONMENT = os.getenv("GAITGUARD_ENV", "production")
+DEBUG = os.getenv("GAITGUARD_DEBUG", "False").lower() in ("true", "1", "yes")
+
+# Resource Limits & File Security
+MAX_UPLOAD_SIZE_BYTES = int(os.getenv("MAX_UPLOAD_SIZE_BYTES", str(100 * 1024 * 1024)))  # 100 MB
+MAX_VIDEO_DURATION_SEC = float(os.getenv("MAX_VIDEO_DURATION_SEC", "30.0"))
+MAX_DECODED_FRAMES = int(os.getenv("MAX_DECODED_FRAMES", "900"))
+REQUEST_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", "60"))
+MAX_CONCURRENT_INFERENCE = int(os.getenv("MAX_CONCURRENT_INFERENCE", "5"))
+
+# Allowed Formats
+ALLOWED_EXTENSIONS = [".mp4", ".avi", ".mov", ".mkv", ".webm"]
+ALLOWED_MIME_TYPES = [
+    "video/mp4",
+    "video/x-msvideo",
+    "video/quicktime",
+    "video/x-matroska",
+    "video/webm"
+]
+
+# CORS Settings
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000").split(",")
+    if origin.strip()
+]

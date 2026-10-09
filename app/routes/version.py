@@ -18,5 +18,5 @@ def version_info():
         model_version=settings.MODEL_VERSION,
         pipeline_version=settings.PIPELINE_VERSION,
         feature_schema_version=settings.FEATURE_SCHEMA_VERSION,
-        phase=12
+        phase=16
     )

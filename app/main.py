@@ -1,8 +1,10 @@
 """
-GaitGuard AI - Main FastAPI Application Instance (Phase 12)
-Configures lifespan startup events, CORS, exception handlers, and API router inclusions.
+GaitGuard AI - Main FastAPI Application Instance (Phase 12 & Phase 16)
+Configures lifespan startup events, CORS, Request ID middleware, exception handlers, and router inclusions.
 """
 
+import uuid
+import time
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
@@ -27,8 +29,11 @@ async def lifespan(app: FastAPI):
     Pre-loads PyTorch BiLSTM model & SHAP explainer ONCE during app startup.
     """
     logger.info("Initializing GaitGuard AI services and pre-loading PyTorch model & SHAP explainer...")
-    initialize_services()
-    logger.info("GaitGuard AI backend services initialized successfully.")
+    try:
+        initialize_services()
+        logger.info("GaitGuard AI backend services initialized successfully.")
+    except Exception as e:
+        logger.error(f"Failed to initialize GaitGuard AI services: {e}", exc_info=True)
     yield
     logger.info("Shutting down GaitGuard AI backend services.")
 
@@ -46,23 +51,40 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Request ID & Observability Middleware
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    request_id = request.headers.get("X-Request-ID") or f"req_{uuid.uuid4().hex[:12]}"
+    request.state.request_id = request_id
+    start_time = time.time()
+    
+    response = await call_next(request)
+    
+    process_time_ms = (time.time() - start_time) * 1000.0
+    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Process-Time-MS"] = f"{process_time_ms:.2f}"
+    return response
+
 # CORS Middleware Setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
 # Global Exception Handler protecting against stack trace leakage
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled Exception on {request.url.path}: {exc}", exc_info=True)
+    req_id = getattr(request.state, "request_id", "req_unknown")
+    logger.error(f"[{req_id}] Unhandled Exception on {request.url.path}: {exc}", exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        headers={"X-Request-ID": req_id},
         content={
             "status": "error",
+            "request_id": req_id,
             "error_code": "INTERNAL_SERVER_ERROR",
             "message": "An internal server error occurred while processing your request.",
             "disclaimer": "AI-assisted screening tool. This output is not a veterinary diagnosis."
