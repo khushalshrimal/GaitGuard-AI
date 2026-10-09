@@ -37,8 +37,13 @@ class QualityMetrics:
         if T < 2:
             return 0.0
             
-        spine1_x = kp[:, 14, 0]
-        disp_x = float(np.max(spine1_x) - np.min(spine1_x))
+        motion_indices = [0, 3, 6, 9, 14]
+        disps = []
+        for idx in motion_indices:
+            x_pts = kp[:, idx, 0]
+            disps.append(float(np.max(x_pts) - np.min(x_pts)))
+        disp_x = max(disps)
+
         if float(np.max(kp)) > 1.5:
             # Pixel coordinate space: normalize by max x dimension
             max_x = max(float(np.max(kp[:, :, 0])), 1.0)
@@ -57,7 +62,8 @@ class QualityMetrics:
             return 100.0 # Default fallback if cv2 uninitialized
             
         variances = []
-        for frame in frames:
+        stride = max(1, len(frames) // 16)
+        for frame in frames[::stride]:
             if frame is None or frame.size == 0:
                 continue
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

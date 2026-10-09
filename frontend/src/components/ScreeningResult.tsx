@@ -14,7 +14,7 @@ export const ScreeningResult: React.FC<ScreeningResultProps> = ({
   onReset
 }) => {
   const { decision, calibrated_probability, confidence, uncertainty_margin } = inference;
-  const riskPct = Math.round(calibrated_probability * 100);
+  const riskPct = (calibrated_probability * 100).toFixed(1);
 
   const getDecisionStyle = () => {
     switch (decision) {
@@ -101,9 +101,9 @@ export const ScreeningResult: React.FC<ScreeningResultProps> = ({
           <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden border border-slate-200">
             <div
               className={`h-full rounded-full transition-all duration-700 ${
-                riskPct > 50 ? 'bg-rose-500' : riskPct > 30 ? 'bg-amber-500' : 'bg-emerald-500'
+                Number(riskPct) > 50 ? 'bg-rose-500' : Number(riskPct) > 30 ? 'bg-amber-500' : 'bg-emerald-500'
               }`}
-              style={{ width: `${Math.max(5, riskPct)}%` }}
+              style={{ width: `${Math.max(5, Number(riskPct))}%` }}
             />
           </div>
         </div>

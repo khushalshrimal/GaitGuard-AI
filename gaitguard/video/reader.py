@@ -62,10 +62,10 @@ class VideoReader:
             
         return VideoMetadata(video_path, fps, width, height, frame_count, duration, True, "")
 
-    def read_all_frames(self, video_path):
+    def read_all_frames(self, video_path, target_sample_count=128):
         """
-        Reads all frames as list of BGR uint8 numpy arrays.
-        Handles decode errors gracefully without dropping valid clips.
+        Reads frames as list of BGR uint8 numpy arrays.
+        Samples target_sample_count frames during decoding loop for maximum speed.
         """
         meta = self.get_metadata(video_path)
         if not meta.is_valid:
@@ -74,11 +74,21 @@ class VideoReader:
         cap = cv2.VideoCapture(video_path)
         frames = []
         
+        total_frames = meta.frame_count
+        if total_frames > target_sample_count and target_sample_count > 0:
+            target_indices = set(np.round(np.linspace(0, total_frames - 1, target_sample_count)).astype(int))
+        else:
+            target_indices = None
+            
+        frame_idx = 0
         while cap.isOpened():
             ret, frame = cap.read()
-            if not ret or frame is None or frame.size == 0:
-                continue
-            frames.append(frame)
+            if not ret:
+                break
+            if target_indices is None or frame_idx in target_indices:
+                if frame is not None and frame.size > 0:
+                    frames.append(frame)
+            frame_idx += 1
             
         cap.release()
         

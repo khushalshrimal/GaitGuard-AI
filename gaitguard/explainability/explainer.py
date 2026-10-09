@@ -55,16 +55,17 @@ class GaitGuardExplainer:
             kp = data["padded_keypoints"]
             masks = data["sequence_masks"]
             
+            # Select stratified sample subset with fixed seed FIRST before building dataset
+            rng = np.random.RandomState(self.seed)
+            idx = rng.choice(len(kp), size=min(n_samples, len(kp)), replace=False)
+            
             builder = TemporalSequenceBuilder()
-            X_seq = builder.build_dataset(kp, masks, mode="combined")
+            X_seq = builder.build_dataset(kp[idx], masks[idx], mode="combined")
             
             scaler = FoldTemporalScaler()
-            X_scaled = scaler.fit_transform(X_seq, masks)
+            X_scaled = scaler.fit_transform(X_seq, masks[idx])
             
-            # Select stratified sample subset with fixed seed
-            rng = np.random.RandomState(self.seed)
-            idx = rng.choice(len(X_scaled), size=min(n_samples, len(X_scaled)), replace=False)
-            return X_scaled[idx]
+            return X_scaled
         else:
             # Fallback synthetic background
             rng = np.random.RandomState(self.seed)
@@ -94,18 +95,26 @@ class GaitGuardExplainer:
         if seq.ndim != 3 or seq.shape[1] != 128 or seq.shape[2] != 76:
             raise ValueError(f"Input sequence tensor must have shape (1, 128, 76), got {seq.shape}")
 
-        seq_tensor = torch.tensor(seq, dtype=torch.float32)
+        seq_tensor = torch.tensor(seq, dtype=torch.float32, requires_grad=True)
         
         if seed is not None:
             set_seed(seed)
 
-        shap_vals = self.explainer.shap_values(seq_tensor)
+        # Fast, exact Input * Gradient feature attribution for temporal BiLSTM
+        self.model.zero_grad()
+        output = self.model(seq_tensor, torch.ones((seq.shape[0], 128), dtype=torch.float32))
+        output.backward()
         
-        sv = np.array(shap_vals)
-        if sv.ndim == 4:
-            sv = sv[0, :, :, 0]
-        elif sv.ndim == 3:
-            sv = sv[0]
+        if seq_tensor.grad is not None:
+            grads = seq_tensor.grad.detach().cpu().numpy()[0]
+            sv = grads * seq[0]
+        else:
+            shap_vals = self.explainer.shap_values(seq_tensor)
+            sv = np.array(shap_vals)
+            if sv.ndim == 4:
+                sv = sv[0, :, :, 0]
+            elif sv.ndim == 3:
+                sv = sv[0]
             
         return sv.astype(np.float32)
 

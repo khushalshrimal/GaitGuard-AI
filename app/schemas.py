@@ -56,10 +56,12 @@ class DerivedGaitEvidenceItem(BaseModel):
     direction: str
     interpretation: str
 
+from typing import Optional, List, Dict, Any
+
 class ExplanationDetails(BaseModel):
     available: bool = Field(...)
     top_contributors: Optional[List[TopContributor]] = Field(default_factory=list)
-    modality_attribution: Optional[Dict[str, float]] = None
+    modality_attribution: Optional[Dict[str, Any]] = None
     body_region_attribution: Optional[Dict[str, float]] = None
     temporal_attribution: Optional[Dict[str, float]] = None
     derived_gait_evidence: Optional[List[DerivedGaitEvidenceItem]] = Field(default_factory=list)

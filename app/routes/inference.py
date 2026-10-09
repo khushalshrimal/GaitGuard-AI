@@ -50,10 +50,12 @@ async def screen_video(
     except HTTPException as he:
         raise he
     except Exception as e:
-        logger.error(f"[{request_id}] Internal server error during screening: {e}", exc_info=True)
+        import traceback
+        err_detail = f"Internal error during video screening: {type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
+        logger.error(f"[{request_id}] {err_detail}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An internal error occurred during video screening processing."
+            detail=err_detail
         )
     finally:
         if temp_path:

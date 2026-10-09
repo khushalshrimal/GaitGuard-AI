@@ -86,7 +86,7 @@ async def global_exception_handler(request: Request, exc: Exception):
             "status": "error",
             "request_id": req_id,
             "error_code": "INTERNAL_SERVER_ERROR",
-            "message": "An internal server error occurred while processing your request.",
+            "message": f"Server Error: {type(exc).__name__}: {str(exc)}",
             "disclaimer": "AI-assisted screening tool. This output is not a veterinary diagnosis."
         }
     )
@@ -95,3 +95,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(health.router)
 app.include_router(version.router)
 app.include_router(inference.router)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000)
+

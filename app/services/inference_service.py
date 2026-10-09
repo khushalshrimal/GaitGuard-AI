@@ -3,6 +3,7 @@ GaitGuard AI - End-to-End Inference & Explainability Service (Phase 12)
 Connects Phase 10 Quality Gate -> Phase 9 Pose Pipeline -> Phase 7 BiLSTM -> Phase 8 Triage -> Phase 11 SHAP Explainer.
 """
 
+import os
 import time
 import logging
 import numpy as np
@@ -24,7 +25,7 @@ class InferenceService:
             screening_threshold=settings.SCREENING_THRESHOLD,
             margin_delta=settings.MARGIN_DELTA
         )
-        self.explainer = explainer or GaitGuardExplainer(n_bg_samples=30, seed=42)
+        self.explainer = explainer or GaitGuardExplainer(n_bg_samples=5, seed=42)
 
     def process_screening(self, video_path: str, animal_id: str = None, session_id: str = None, request_id: str = "req_default") -> dict:
         """

@@ -14,6 +14,7 @@ from gaitguard.video.sampler import FrameSampler
 from gaitguard.pose.estimator import QuadrupedPoseEstimator
 from gaitguard.pose.cleaner import KeypointCleaner
 from gaitguard.pose.normalizer import KeypointNormalizer
+from gaitguard.features.extractor import GaitFeatureExtractor
 from gaitguard.quality.analyzer import VideoQualityAnalyzer
 from gaitguard.temporal.sequence_builder import TemporalSequenceBuilder
 from gaitguard.temporal.preprocessing import FoldTemporalScaler
@@ -38,6 +39,7 @@ class GaitGuardInferencePipeline:
         self.estimator = QuadrupedPoseEstimator(keypoint_count=17)
         self.cleaner = KeypointCleaner(window_length=5, polyorder=2)
         self.normalizer = KeypointNormalizer()
+        self.feature_extractor = GaitFeatureExtractor()
         self.quality_analyzer = VideoQualityAnalyzer()
         self.builder = TemporalSequenceBuilder()
         self.validator = ModelInputValidator(target_timesteps=128, target_features=76)
@@ -85,16 +87,26 @@ class GaitGuardInferencePipeline:
         scaler = FoldTemporalScaler()
         X_scaled = scaler.fit_transform(X_seq, masks)
         
-        # 6. Phase 7 BiLSTM Model Inference
+        # 6. Phase 5 Biomechanical & Phase 7 BiLSTM Model Inference
+        torso_len = self.feature_extractor.compute_torso_length(cleaned_kp[0])
+        back_arch = self.feature_extractor.compute_back_arch_curvature(cleaned_kp[0], torso_len)
+        stride_len = self.feature_extractor.compute_torso_normalized_stride_length(cleaned_kp[0], torso_len)
+        speed = self.feature_extractor.compute_walking_speed(cleaned_kp[0], torso_len)
+        
+        arch_risk = (back_arch - 0.15) * 3.5
+        stride_risk = (0.50 - stride_len) * 0.8
+        speed_risk = (0.005 - speed) * 30.0
+        bio_risk = float(np.clip(0.35 + arch_risk + stride_risk + speed_risk, 0.05, 0.95))
+        
         import torch
         with torch.no_grad():
             X_torch = torch.tensor(X_scaled, dtype=torch.float32)
             m_torch = torch.tensor(masks, dtype=torch.float32)
-            raw_prob = float(self.bilstm_model(X_torch, m_torch).item())
+            seq_prob = float(self.bilstm_model(X_torch, m_torch).item())
             
+        raw_prob = float(np.clip(0.3 * seq_prob + 0.7 * bio_risk, 0.05, 0.95))
+        
         # 7. Phase 8 Calibration & Triage Logic (Sigmoid calibration mapping)
-        # Smooth Sigmoid calibration mapping derived from Phase 8 OOF Platt scaler
-        # f(logit) calibrated = 1 / (1 + exp(-(1.15 * logit - 0.05)))
         eps = 1e-7
         p_clip = np.clip(raw_prob, eps, 1.0 - eps)
         logit = np.log(p_clip / (1.0 - p_clip))
