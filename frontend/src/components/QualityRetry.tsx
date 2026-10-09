@@ -30,7 +30,7 @@ export const QualityRetry: React.FC<QualityRetryProps> = ({ quality, onReset }) 
         <div>
           <span className="text-slate-500 block">Overall Quality Score</span>
           <span className="text-base font-bold text-slate-800">
-            {Math.round(quality.quality_score * 100)}%
+            {Math.round(quality.quality_score)} / 100
           </span>
         </div>
         <div>
@@ -46,9 +46,9 @@ export const QualityRetry: React.FC<QualityRetryProps> = ({ quality, onReset }) 
           </span>
         </div>
         <div>
-          <span className="text-slate-500 block">Framing Quality</span>
+          <span className="text-slate-500 block">Focus / Sharpness</span>
           <span className="text-base font-bold text-slate-800">
-            {Math.round(quality.framing_quality * 100)}%
+            {Math.round(quality.blur_indicator)}
           </span>
         </div>
       </div>

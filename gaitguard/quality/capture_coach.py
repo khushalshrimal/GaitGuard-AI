@@ -19,7 +19,8 @@ class CaptureCoach:
         QualityIssueCode.INSUFFICIENT_WALKING.value: "Record the cow while it walks naturally in a straight path.",
         QualityIssueCode.EXCESSIVE_BLUR.value: "Hold the camera steady and ensure adequate lighting to reduce motion blur.",
         QualityIssueCode.POOR_FRAMING.value: "Keep the entire cow centered in the frame, avoiding extreme zoom or cropping.",
-        QualityIssueCode.EXCESSIVE_CAMERA_MOTION.value: "Keep the camera stationary or pan smoothly alongside the cow."
+        QualityIssueCode.EXCESSIVE_CAMERA_MOTION.value: "Keep the camera stationary or pan smoothly alongside the cow.",
+        QualityIssueCode.INSUFFICIENT_VISUAL_EVIDENCE.value: "Insufficient visual evidence detected. Move to a clearer side-profile view and ensure the cow's body is fully visible without obstructions."
     }
 
     @classmethod

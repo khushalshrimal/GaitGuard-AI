@@ -39,7 +39,12 @@ class QualityMetrics:
             
         spine1_x = kp[:, 14, 0]
         disp_x = float(np.max(spine1_x) - np.min(spine1_x))
-        norm_disp = float(disp_x / max(torso_len, 1e-4))
+        if float(np.max(kp)) > 1.5:
+            # Pixel coordinate space: normalize by max x dimension
+            max_x = max(float(np.max(kp[:, :, 0])), 1.0)
+            norm_disp = float((disp_x / max_x) / max(torso_len, 1e-4))
+        else:
+            norm_disp = float(disp_x / max(torso_len, 1e-4))
         return norm_disp
 
     @staticmethod

@@ -100,9 +100,16 @@ class InferenceService:
         quality_res = self.pipeline.quality_analyzer.analyze_quality(meta, frames=sampled_frames, keypoints=kp_raw, confidences=conf_raw)
         quality_dict = quality_res.to_dict()
 
-        # If Quality Gate returns RETRY: Intercept ML prediction entirely!
+        logger.info(
+            f"[{request_id}] Quality Gate evaluation: status={quality_res.status}, "
+            f"score={quality_res.quality_score}, coverage={quality_res.keypoint_coverage}, "
+            f"motion={quality_res.motion_quality}, blur={quality_res.blur_indicator}, issues={quality_res.issues}"
+        )
+
+        # If Quality Gate returns RETRY: Intercept ML prediction entirely due to unrecoverable evidence failure
         if quality_res.status == "RETRY":
-            logger.info(f"[{request_id}] Quality Gate intercepted video with status RETRY. Bypassing ML inference.")
+            logger.warning(f"[{request_id}] Quality Gate intercepted video with status RETRY. Bypassing ML inference. Issues: {quality_res.issues}")
+            summary = "Insufficient visual evidence for ML prediction." if "INSUFFICIENT_VISUAL_EVIDENCE" in quality_res.issues else "Video quality insufficient for ML prediction."
             return {
                 "status": "retry",
                 "request_id": request_id,
@@ -116,7 +123,7 @@ class InferenceService:
                     "pipeline_version": settings.PIPELINE_VERSION,
                     "total_processing_time_sec": round(time.time() - t0, 4)
                 },
-                "result_summary": "Video quality insufficient for ML prediction.",
+                "result_summary": summary,
                 "disclaimer": "AI-assisted screening tool. This output is not a veterinary diagnosis."
             }
 

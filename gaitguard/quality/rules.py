@@ -21,20 +21,22 @@ class QualityIssueCode(str, Enum):
     EXCESSIVE_BLUR = "EXCESSIVE_BLUR"
     POOR_FRAMING = "POOR_FRAMING"
     EXCESSIVE_CAMERA_MOTION = "EXCESSIVE_CAMERA_MOTION"
+    INSUFFICIENT_VISUAL_EVIDENCE = "INSUFFICIENT_VISUAL_EVIDENCE"
 
 
 class QualityRules:
     """
     Evaluates measurable quality signals against documented thresholds.
+    Separates advisory technical quality from hard minimum-evidence eligibility.
     """
 
-    MIN_FRAME_COUNT = 30
+    MIN_FRAME_COUNT = 15
     MIN_RESOLUTION_HEIGHT = 360
     MIN_FPS = 15.0
-    MIN_KEYPOINT_COVERAGE = 0.65
-    MIN_WALKING_MOTION = 0.05
-    MIN_LAPLACIAN_VAR = 35.0
-    MIN_FRAMING_AREA = 0.08
+    MIN_KEYPOINT_COVERAGE = 0.40
+    MIN_WALKING_MOTION = 0.01
+    MIN_LAPLACIAN_VAR = 15.0
+    MIN_FRAMING_AREA = 0.05
     MAX_FRAMING_AREA = 0.95
 
     @classmethod
@@ -59,6 +61,7 @@ class QualityRules:
             
         if coverage < cls.MIN_KEYPOINT_COVERAGE:
             issues.append(QualityIssueCode.LOW_KEYPOINT_COVERAGE.value)
+            issues.append(QualityIssueCode.INSUFFICIENT_VISUAL_EVIDENCE.value)
             
         if motion_disp < cls.MIN_WALKING_MOTION:
             issues.append(QualityIssueCode.INSUFFICIENT_WALKING.value)
@@ -69,20 +72,21 @@ class QualityRules:
         if framing_area < cls.MIN_FRAMING_AREA or framing_area > cls.MAX_FRAMING_AREA:
             issues.append(QualityIssueCode.POOR_FRAMING.value)
             
-        retry_triggers = {
+        # Hard RETRY triggers represent unrecoverable evidence failure
+        hard_retry_triggers = {
             QualityIssueCode.VIDEO_UNREADABLE.value,
             QualityIssueCode.VIDEO_TOO_SHORT.value,
-            QualityIssueCode.LOW_RESOLUTION.value,
             QualityIssueCode.LOW_KEYPOINT_COVERAGE.value,
-            QualityIssueCode.EXCESSIVE_BLUR.value,
+            QualityIssueCode.INSUFFICIENT_VISUAL_EVIDENCE.value,
             QualityIssueCode.INSUFFICIENT_WALKING.value
         }
         
-        if len(issues) == 0:
-            status = QualityStatus.READY
-        elif any(issue in retry_triggers for issue in issues):
+        if any(issue in hard_retry_triggers for issue in issues):
             status = QualityStatus.RETRY
+        elif len(issues) == 0:
+            status = QualityStatus.READY
         else:
-            status = QualityStatus.INCONCLUSIVE
+            # Technical advisories (e.g. low resolution height < 360, mild blur) proceed to ML inference
+            status = QualityStatus.READY
             
         return status, issues

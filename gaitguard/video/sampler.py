@@ -29,7 +29,16 @@ class FrameSampler:
             
         # Uniform index sampling
         indices = np.round(np.linspace(0, N - 1, self.target_length)).astype(int)
-        sampled_frames = [frames[idx] for idx in indices]
+        valid_frames = [f for f in frames if f is not None and f.size > 0]
+        if len(valid_frames) == 0:
+            raise ValueError("All frames in video stream are empty or unreadable.")
+            
+        sampled_frames = []
+        for idx in indices:
+            f = frames[idx]
+            if f is None or f.size == 0:
+                f = valid_frames[0]
+            sampled_frames.append(f)
+            
         mask = np.ones(self.target_length, dtype=np.int32)
-        
         return sampled_frames, mask

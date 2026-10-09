@@ -89,49 +89,50 @@ class TestPhase10QualityGate(unittest.TestCase):
         self.assertEqual(len(issues), 0)
 
     def test_10_rules_evaluate_short_video(self):
-        """Verify video under 30 frames evaluates to RETRY with VIDEO_TOO_SHORT."""
+        """Verify video under 15 frames evaluates to RETRY with VIDEO_TOO_SHORT."""
         status, issues = QualityRules.evaluate(
-            meta_valid=True, frame_count=20, height=1080, fps=30.0,
+            meta_valid=True, frame_count=10, height=1080, fps=30.0,
             coverage=0.95, motion_disp=0.25, blur_var=140.0, framing_area=0.35
         )
         self.assertEqual(status, QualityStatus.RETRY)
         self.assertIn("VIDEO_TOO_SHORT", issues)
 
     def test_11_rules_evaluate_low_resolution(self):
-        """Verify video height under 360p evaluates to RETRY with LOW_RESOLUTION."""
+        """Verify video height under 360p with sufficient evidence proceeds to READY with LOW_RESOLUTION advisory."""
         status, issues = QualityRules.evaluate(
             meta_valid=True, frame_count=100, height=240, fps=30.0,
             coverage=0.95, motion_disp=0.25, blur_var=140.0, framing_area=0.35
         )
-        self.assertEqual(status, QualityStatus.RETRY)
+        self.assertEqual(status, QualityStatus.READY)
         self.assertIn("LOW_RESOLUTION", issues)
 
     def test_12_rules_evaluate_insufficient_walking(self):
         """Verify static video evaluates to RETRY with INSUFFICIENT_WALKING."""
         status, issues = QualityRules.evaluate(
             meta_valid=True, frame_count=100, height=1080, fps=30.0,
-            coverage=0.95, motion_disp=0.01, blur_var=140.0, framing_area=0.35
+            coverage=0.95, motion_disp=0.005, blur_var=140.0, framing_area=0.35
         )
         self.assertEqual(status, QualityStatus.RETRY)
         self.assertIn("INSUFFICIENT_WALKING", issues)
 
     def test_13_rules_evaluate_excessive_blur(self):
-        """Verify low Laplacian variance evaluates to RETRY with EXCESSIVE_BLUR."""
+        """Verify low Laplacian variance (< 15) with good keypoint coverage proceeds to READY with EXCESSIVE_BLUR advisory."""
         status, issues = QualityRules.evaluate(
             meta_valid=True, frame_count=100, height=1080, fps=30.0,
-            coverage=0.95, motion_disp=0.25, blur_var=15.0, framing_area=0.35
+            coverage=0.95, motion_disp=0.25, blur_var=10.0, framing_area=0.35
         )
-        self.assertEqual(status, QualityStatus.RETRY)
+        self.assertEqual(status, QualityStatus.READY)
         self.assertIn("EXCESSIVE_BLUR", issues)
 
     def test_14_rules_evaluate_low_coverage(self):
-        """Verify coverage under 0.65 evaluates to RETRY with LOW_KEYPOINT_COVERAGE."""
+        """Verify coverage under 0.40 evaluates to RETRY with LOW_KEYPOINT_COVERAGE and INSUFFICIENT_VISUAL_EVIDENCE."""
         status, issues = QualityRules.evaluate(
             meta_valid=True, frame_count=100, height=1080, fps=30.0,
-            coverage=0.50, motion_disp=0.25, blur_var=140.0, framing_area=0.35
+            coverage=0.30, motion_disp=0.25, blur_var=140.0, framing_area=0.35
         )
         self.assertEqual(status, QualityStatus.RETRY)
         self.assertIn("LOW_KEYPOINT_COVERAGE", issues)
+        self.assertIn("INSUFFICIENT_VISUAL_EVIDENCE", issues)
 
     def test_15_rules_evaluate_corrupt_video(self):
         """Verify unreadable video evaluates to RETRY with VIDEO_UNREADABLE."""

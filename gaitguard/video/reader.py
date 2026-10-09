@@ -29,7 +29,7 @@ class VideoReader:
     Reads video metadata and frame streams from MP4, AVI, and MOV files.
     """
 
-    def __init__(self, min_frames=30):
+    def __init__(self, min_frames=15):
         self.min_frames = min_frames
 
     def get_metadata(self, video_path):
@@ -65,6 +65,7 @@ class VideoReader:
     def read_all_frames(self, video_path):
         """
         Reads all frames as list of BGR uint8 numpy arrays.
+        Handles decode errors gracefully without dropping valid clips.
         """
         meta = self.get_metadata(video_path)
         if not meta.is_valid:
@@ -75,13 +76,13 @@ class VideoReader:
         
         while cap.isOpened():
             ret, frame = cap.read()
-            if not ret:
-                break
+            if not ret or frame is None or frame.size == 0:
+                continue
             frames.append(frame)
             
         cap.release()
         
         if len(frames) == 0:
-            raise ValueError(f"No frames read from video '{video_path}'.")
+            raise ValueError(f"No valid frames read from video '{video_path}'.")
             
         return frames, meta
